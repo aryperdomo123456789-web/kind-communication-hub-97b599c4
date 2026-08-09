@@ -95,16 +95,15 @@ export const connectSsh = createServerFn({ method: "POST" })
 export const getPanelAccount = createServerFn({ method: "POST" })
   .validator(panelUsernameSchema)
   .handler(async ({ data }) => {
+    const { getSavedPanelAccount } = await import("./flussonic-connection-store");
+    const account = await getSavedPanelAccount(data.panelUsername);
+    if (!account) return { success: false, message: "Usuário não encontrado." };
     return { 
       success: true, 
-      message: "Simulado", 
+      message: "OK", 
       account: { 
-        username: data.panelUsername, 
-        password: "...", 
-        role: data.panelUsername === "mago@dono.com" ? "admin" : "user",
-        flussonicLimit: data.panelUsername === "mago@dono.com" ? 999 : 5,
-        createdAt: new Date().toISOString(), 
-        updatedAt: new Date().toISOString() 
+        ...account,
+        password: "HIDDEN" // Don't send password back to UI unless necessary
       } 
     };
   });
@@ -112,37 +111,47 @@ export const getPanelAccount = createServerFn({ method: "POST" })
 export const listUsers = createServerFn({ method: "POST" })
   .validator(z.object({ adminUsername: z.string() }))
   .handler(async ({ data }) => {
-    // Em produção, verificaríamos se adminUsername é realmente admin
-    return {
-      success: true,
-      users: [
-        { username: "mago@dono.com", role: "admin", flussonicLimit: 999 },
-        { username: "user@teste.com", role: "user", flussonicLimit: 5 }
-      ]
-    };
+    const { getSavedPanelAccount, listAllUsers } = await import("./flussonic-connection-store");
+    const admin = await getSavedPanelAccount(data.adminUsername);
+    if (!admin || admin.role !== 'admin') {
+      return { success: false, users: [], message: "Acesso negado." };
+    }
+    const users = await listAllUsers();
+    return { success: true, users };
   });
 
 export const createUser = createServerFn({ method: "POST" })
   .validator(panelAccountSchema)
   .handler(async ({ data }) => {
-    return { success: true, message: `Usuário ${data.username} criado com sucesso!` };
+    const { adminCreateUser } = await import("./flussonic-connection-store");
+    await adminCreateUser(data.username, data.password, data.role || 'user', data.flussonicLimit || 5);
+    return { success: true, message: `Usuário ${data.username} criado/atualizado com sucesso!` };
   });
 
 export const deleteUserFn = createServerFn({ method: "POST" })
   .validator(z.object({ username: z.string() }))
   .handler(async ({ data }) => {
-    return { success: true, message: `Usuário ${data.username} removido.` };
+    const { deleteUser } = await import("./flussonic-connection-store");
+    const success = await deleteUser(data.username);
+    return { success, message: success ? `Usuário ${data.username} removido.` : "Não é possível remover este usuário." };
   });
 
 export const listAllFlussonicProfiles = createServerFn({ method: "POST" })
   .validator(z.object({ adminUsername: z.string() }))
-  .handler(async () => {
-    return { success: true, profiles: [] };
+  .handler(async ({ data }) => {
+    const { getSavedPanelAccount, dbAll } = await import("./flussonic-connection-store");
+    const admin = await getSavedPanelAccount(data.adminUsername);
+    if (!admin || admin.role !== 'admin') return { success: false, profiles: [] };
+    
+    const rows = await (await import("./flussonic-connection-store")).dbAll("SELECT * FROM flussonic_profiles");
+    return { success: true, profiles: rows };
   });
 
 export const listAllM3ULists = createServerFn({ method: "POST" })
   .validator(z.object({ adminUsername: z.string() }))
   .handler(async () => {
+    // Para simplificar agora, retornamos sucesso mas as listas costumam estar no localStorage
+    // Em um sistema full server-side, aqui leríamos a tabela de listas M3U
     return { success: true, lists: [] };
   });
 
@@ -151,17 +160,12 @@ export const loadPanelAccount = getPanelAccount;
 export const updatePanelAccount = createServerFn({ method: "POST" })
   .validator(panelAccountSchema)
   .handler(async ({ data }) => {
+    const { savePanelAccount } = await import("./flussonic-connection-store");
+    const account = await savePanelAccount(data.username, data.password, data.role || 'user', data.flussonicLimit || 5);
     return { 
       success: true, 
-      message: "Simulado", 
-      account: { 
-        username: data.username, 
-        password: data.password, 
-        role: data.role || 'user',
-        flussonicLimit: data.flussonicLimit || 5,
-        createdAt: new Date().toISOString(), 
-        updatedAt: new Date().toISOString() 
-      } 
+      message: "Conta atualizada com sucesso.", 
+      account 
     };
   });
 
