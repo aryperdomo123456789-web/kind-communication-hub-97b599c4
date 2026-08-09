@@ -35,8 +35,10 @@ export interface SavedFlussonicConnectionProfile {
 export interface PanelUserRecord {
   username: string;
   password: string;
+  role: 'admin' | 'user';
   createdAt: string;
   updatedAt: string;
+  flussonicLimit: number;
   activeFlussonicProfileId?: string | null;
 }
 
@@ -69,8 +71,10 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS users (
       username TEXT PRIMARY KEY,
       password TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
+      flussonic_limit INTEGER DEFAULT 5,
       active_flussonic_profile_id TEXT
     )
   `);
@@ -100,8 +104,8 @@ async function initDb() {
   if (!existing) {
     const now = new Date().toISOString();
     await dbRun(
-      "INSERT INTO users (username, password, created_at, updated_at, active_flussonic_profile_id) VALUES (?, ?, ?, ?, ?)",
-      [DEFAULT_PANEL_ACCOUNT.username, DEFAULT_PANEL_ACCOUNT.password, now, now, null]
+      "INSERT INTO users (username, password, role, created_at, updated_at, flussonic_limit) VALUES (?, ?, ?, ?, ?, ?)",
+      [DEFAULT_PANEL_ACCOUNT.username, DEFAULT_PANEL_ACCOUNT.password, 'admin', now, now, 999]
     );
   }
 }
@@ -114,19 +118,37 @@ export async function getSavedPanelAccount(username: string = DEFAULT_PANEL_ACCO
   return {
     username: row.username,
     password: row.password,
+    role: row.role as 'admin' | 'user',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    flussonicLimit: row.flussonic_limit,
     activeFlussonicProfileId: row.active_flussonic_profile_id,
   };
 }
 
-export async function savePanelAccount(username: string, password: string) {
+export async function savePanelAccount(username: string, password: string, role: 'admin' | 'user' = 'user', flussonicLimit: number = 5) {
   const now = new Date().toISOString();
   await dbRun(
-    "INSERT INTO users (username, password, created_at, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET password=excluded.password, updated_at=excluded.updated_at",
-    [username.trim(), password, now, now]
+    "INSERT INTO users (username, password, role, created_at, updated_at, flussonic_limit) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET password=excluded.password, updated_at=excluded.updated_at, role=excluded.role, flussonic_limit=excluded.flussonic_limit",
+    [username.trim(), password, role, now, now, flussonicLimit]
   );
   return getSavedPanelAccount(username);
+}
+
+export async function listAllUsers() {
+  const rows = await dbAll("SELECT * FROM users ORDER BY created_at DESC");
+  return rows.map(row => ({
+    username: row.username,
+    role: row.role,
+    flussonicLimit: row.flussonic_limit,
+    createdAt: row.created_at
+  }));
+}
+
+export async function deleteUser(username: string) {
+  if (username === DEFAULT_PANEL_ACCOUNT.username) return false;
+  await dbRun("DELETE FROM users WHERE username = ?", [username]);
+  return true;
 }
 
 export async function listSavedFlussonicConnectionProfiles(panelUsername: string): Promise<SavedFlussonicConnectionProfile[]> {

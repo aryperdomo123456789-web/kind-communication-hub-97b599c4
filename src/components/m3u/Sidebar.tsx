@@ -1,5 +1,5 @@
 import { useCallback, type MouseEvent } from "react";
-import { Film, Tv, Play, List, Settings, Server, UserRound, LogOut } from "lucide-react";
+import { Film, Tv, Play, List, Settings, Server, UserRound, LogOut, Users, ShieldAlert, Database } from "lucide-react";
 import { M3UParsed, M3UCategory } from "@/lib/m3u/types";
 import { ViewType } from "@/hooks/use-m3u";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ interface SidebarProps {
   data: M3UParsed | null;
   setSearchQuery: (query: string) => void;
   accountName?: string;
+  isAdmin?: boolean;
   onLogout?: () => void;
   className?: string;
 }
@@ -32,6 +33,7 @@ export function Sidebar({
   data,
   setSearchQuery,
   accountName,
+  isAdmin,
   onLogout,
   className,
 }: SidebarProps) {
@@ -142,6 +144,36 @@ export function Sidebar({
         >
           <UserRound size={20} /> <span className="font-medium">Conta</span>
         </button>
+        
+        {isAdmin && (
+          <>
+            <div className="h-px bg-neutral-800 my-4" />
+            <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-neutral-500">
+              Administração
+            </div>
+            <button
+              data-view="admin_users"
+              onClick={handleNavigate}
+              className={`p-3 rounded-xl transition-all flex items-center gap-3 ${activeView === "admin_users" ? "bg-purple-600 shadow-lg shadow-purple-600/20" : "text-neutral-400 hover:bg-neutral-800"}`}
+            >
+              <Users size={20} /> <span className="font-medium">Usuários</span>
+            </button>
+            <button
+              data-view="admin_flussonics"
+              onClick={handleNavigate}
+              className={`p-3 rounded-xl transition-all flex items-center gap-3 ${activeView === "admin_flussonics" ? "bg-purple-600 shadow-lg shadow-purple-600/20" : "text-neutral-400 hover:bg-neutral-800"}`}
+            >
+              <ShieldAlert size={20} /> <span className="font-medium">Servidores (Todos)</span>
+            </button>
+            <button
+              data-view="admin_m3us"
+              onClick={handleNavigate}
+              className={`p-3 rounded-xl transition-all flex items-center gap-3 ${activeView === "admin_m3us" ? "bg-purple-600 shadow-lg shadow-purple-600/20" : "text-neutral-400 hover:bg-neutral-800"}`}
+            >
+              <Database size={20} /> <span className="font-medium">Listas M3U (Todas)</span>
+            </button>
+          </>
+        )}
       </nav>
 
       <div className="mt-auto p-4 border-t border-neutral-800">
