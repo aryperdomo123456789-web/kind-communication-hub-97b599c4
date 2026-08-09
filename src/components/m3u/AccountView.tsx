@@ -24,6 +24,8 @@ interface SavedConnection {
 const DEFAULT_ACCOUNT: PanelAccount = {
   username: "mago@dono.com",
   password: "12345678",
+  role: "admin",
+  flussonicLimit: 999,
 };
 
 export function AccountView({ account, setAccount }: AccountViewProps) {
