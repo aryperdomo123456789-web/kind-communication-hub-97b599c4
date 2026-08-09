@@ -66,6 +66,9 @@ export function Header({
     server: "Conectar Servidor",
     account: "Conta",
     flussonic: "Gestão Flussonic PRO",
+    admin_users: "Gestão de Usuários",
+    admin_flussonics: "Todos os Servidores",
+    admin_m3us: "Todas as Listas M3U",
   };
 
   return (
@@ -85,7 +88,10 @@ export function Header({
           activeView !== "custom" &&
           activeView !== "server" &&
           activeView !== "account" &&
-          activeView !== "flussonic" && (
+          activeView !== "flussonic" &&
+          activeView !== "admin_users" &&
+          activeView !== "admin_flussonics" &&
+          activeView !== "admin_m3us" && (
             <div className="relative flex-1 max-w-[200px] md:max-w-md hidden sm:block">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"
@@ -111,7 +117,10 @@ export function Header({
           activeView !== "custom" &&
           activeView !== "server" &&
           activeView !== "account" &&
-          activeView !== "flussonic" && (
+          activeView !== "flussonic" &&
+          activeView !== "admin_users" &&
+          activeView !== "admin_flussonics" &&
+          activeView !== "admin_m3us" && (
             <>
               {selectionMode ? (
                 <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4">
