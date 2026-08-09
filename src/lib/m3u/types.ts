@@ -64,6 +64,8 @@ export interface FlussonicMirrorSnapshot {
 export interface PanelAccount {
   username: string;
   password: string;
+  role?: 'admin' | 'user';
+  flussonicLimit?: number;
 }
 
 export interface FlussonicConnectionHealth {
