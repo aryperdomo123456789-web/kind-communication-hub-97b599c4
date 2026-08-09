@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { Client } from "ssh2-promise";
+import SSH from "ssh2-promise";
 import type {
   FlussonicMirrorSnapshot,
   FlussonicStreamInfo,
@@ -164,7 +164,7 @@ async function checkFlussonicApiHealth(input: {
 
 async function checkAndStoreConnectionProfile(profile: FlussonicConnectionProfile) {
   let sshOk = false;
-  const conn = new Client({
+  const conn = new SSH({
     host: profile.serverIp,
     port: profile.sshPort,
     username: profile.sshUser,
@@ -346,7 +346,7 @@ export const createFlussonicCategory = createServerFn({ method: "POST" })
     name: z.string() 
   }))
   .handler(async ({ data }) => {
-    const conn = new Client({
+    const conn = new SSH({
       host: data.serverIp,
       port: data.sshPort,
       username: data.sshUser,
@@ -411,7 +411,7 @@ export const listFlussonicCategories = createServerFn({ method: "POST" })
     sshPort: z.number(),
   }))
   .handler(async ({ data }) => {
-    const conn = new Client({
+    const conn = new SSH({
       host: data.serverIp,
       port: data.sshPort,
       username: data.sshUser,
