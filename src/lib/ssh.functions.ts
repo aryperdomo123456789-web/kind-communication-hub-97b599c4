@@ -411,13 +411,14 @@ export const createFlussonicChannel = createServerFn({ method: "POST" })
       });
 
       // Update flussonic.conf
-      const streamConfig = `
-stream ${data.name} {
-  input vod://${data.category || 'vod'}/${data.name}.txt;
-}
-`;
+      // We check if the stream already exists to avoid duplicates
+      // We ensure the folder exists in flussonic.conf reference
+      const streamConfig = `stream ${data.name} {\\n  input vod://vod/${data.category ? data.category + '/' : ''}${data.name}.txt;\\n}`;
+      const escapedConfig = streamConfig.replace(/'/g, "'\\''");
+      
       await new Promise((resolve, reject) => {
-        conn.exec(`grep -q "stream ${data.name} {" /etc/flussonic/flussonic.conf || echo '${streamConfig}' >> /etc/flussonic/flussonic.conf && service flussonic reload`, (err, stream) => {
+        const cmd = `if ! grep -q "stream ${data.name} {" /etc/flussonic/flussonic.conf; then echo -e '${escapedConfig}' >> /etc/flussonic/flussonic.conf; fi && service flussonic reload`;
+        conn.exec(cmd, (err, stream) => {
           if (err) return reject(err);
           stream.on("close", resolve).on("error", reject).resume();
         });
