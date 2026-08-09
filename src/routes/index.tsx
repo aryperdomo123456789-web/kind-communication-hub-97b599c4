@@ -43,6 +43,8 @@ function Index() {
     isAuthenticated,
     login,
     logout,
+    isAdmin,
+    adminFunctions,
     handleProcess,
     toggleSelection,
     createCustomCategory,
@@ -195,6 +197,7 @@ function Index() {
           setSearchQuery={setSearchQuery}
           accountName={panelAccount.username}
           onLogout={logout}
+          isAdmin={isAdmin}
           className={cn(
             "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:relative lg:translate-x-0",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full",
@@ -247,6 +250,37 @@ function Index() {
               <FlussonicView panelUsername={panelAccount.username} />
             ) : activeView === "account" ? (
               <AccountView account={panelAccount} setAccount={setPanelAccount} />
+            ) : activeView === "admin_users" ? (
+              <div className="p-4 bg-black/20 rounded-xl border border-white/5">
+                <h3 className="text-xl font-bold mb-4">Gestão de Usuários (Admin)</h3>
+                <p className="text-neutral-400 mb-6">Funcionalidade de criação e limites de usuários.</p>
+                {/* Aqui entrará o componente de Admin Users */}
+                <div className="grid gap-4">
+                  <div className="p-4 bg-white/5 rounded-lg border border-white/10 flex justify-between items-center">
+                    <div>
+                      <div className="font-bold">mago@dono.com</div>
+                      <div className="text-xs text-neutral-500 text-purple-400">Administrador • Limite: ∞</div>
+                    </div>
+                    <div className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded">Sistema</div>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-lg border border-white/10 flex justify-between items-center opacity-60">
+                    <div>
+                      <div className="font-bold">Em breve...</div>
+                      <div className="text-xs text-neutral-500">Módulo de expansão de rede</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : activeView === "admin_flussonics" ? (
+              <div className="p-4 bg-black/20 rounded-xl border border-white/5">
+                <h3 className="text-xl font-bold mb-4">Todos os Servidores Flussonic</h3>
+                <p className="text-neutral-400">Visão global de infraestrutura disponível para o Administrador.</p>
+              </div>
+            ) : activeView === "admin_m3us" ? (
+              <div className="p-4 bg-black/20 rounded-xl border border-white/5">
+                <h3 className="text-xl font-bold mb-4">Todas as Listas M3U</h3>
+                <p className="text-neutral-400">Acesso a todas as fontes de conteúdo importadas no sistema.</p>
+              </div>
             ) : (
               <div className="space-y-6 animate-in fade-in duration-300">
                 {(activeView === "movies" || activeView === "series" || activeView === "live") && (

