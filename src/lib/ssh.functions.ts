@@ -78,12 +78,14 @@ export const connectSsh = createServerFn({ method: "POST" })
         message: "Simulado" 
       },
       profile,
+      profiles: [profile],
       streams: []
     } as {
       success: boolean;
       message: string;
       health: FlussonicConnectionHealth;
       profile: FlussonicConnectionProfile;
+      profiles: FlussonicConnectionProfile[];
       streams: any[];
     };
   });
