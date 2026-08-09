@@ -112,7 +112,7 @@ async function initDb() {
 
 initDb().catch(console.error);
 
-export async function getSavedPanelAccount(username: string = DEFAULT_PANEL_ACCOUNT.username): Promise<PanelUserRecord | null> {
+export async function getSavedPanelAccount(username: string): Promise<PanelUserRecord | null> {
   const row = await dbGet("SELECT * FROM users WHERE username = ?", [username.trim()]) as any;
   if (!row) return null;
   return {
@@ -128,10 +128,21 @@ export async function getSavedPanelAccount(username: string = DEFAULT_PANEL_ACCO
 
 export async function savePanelAccount(username: string, password: string, role: 'admin' | 'user' = 'user', flussonicLimit: number = 5) {
   const now = new Date().toISOString();
-  await dbRun(
-    "INSERT INTO users (username, password, role, created_at, updated_at, flussonic_limit) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET password=excluded.password, updated_at=excluded.updated_at, role=excluded.role, flussonic_limit=excluded.flussonic_limit",
-    [username.trim(), password, role, now, now, flussonicLimit]
-  );
+  // Don't allow changing role/limit for the master account via simple save
+  const existing = await getSavedPanelAccount(username);
+  
+  if (existing) {
+    await dbRun(
+      "UPDATE users SET password = ?, updated_at = ? WHERE username = ?",
+      [password, now, username.trim()]
+    );
+  } else {
+    await dbRun(
+      "INSERT INTO users (username, password, role, created_at, updated_at, flussonic_limit) VALUES (?, ?, ?, ?, ?, ?)",
+      [username.trim(), password, role, now, now, flussonicLimit]
+    );
+  }
+  
   return getSavedPanelAccount(username);
 }
 
@@ -143,6 +154,15 @@ export async function listAllUsers() {
     flussonicLimit: row.flussonic_limit,
     createdAt: row.created_at
   }));
+}
+
+export async function adminCreateUser(username: string, password: string, role: 'admin' | 'user', limit: number) {
+  const now = new Date().toISOString();
+  await dbRun(
+    "INSERT INTO users (username, password, role, created_at, updated_at, flussonic_limit) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(username) DO UPDATE SET password=excluded.password, role=excluded.role, flussonic_limit=excluded.flussonic_limit, updated_at=excluded.updated_at",
+    [username.trim(), password, role, now, now, limit]
+  );
+  return true;
 }
 
 export async function deleteUser(username: string) {

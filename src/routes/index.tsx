@@ -8,6 +8,7 @@ import { ContentItem } from "@/components/m3u/ContentItem";
 import { SettingsView } from "@/components/m3u/SettingsView";
 import { CustomCategoriesView } from "@/components/m3u/CustomCategoriesView";
 import { AccountView } from "@/components/m3u/AccountView";
+import { UsersManagementView } from "@/components/m3u/UsersManagementView";
 import { LoginView } from "@/components/m3u/LoginView";
 import { Search, Menu, X, Server } from "lucide-react";
 import { ServerView } from "@/components/m3u/ServerView";
@@ -251,26 +252,7 @@ function Index() {
             ) : activeView === "account" ? (
               <AccountView account={panelAccount} setAccount={setPanelAccount} />
             ) : activeView === "admin_users" ? (
-              <div className="p-4 bg-black/20 rounded-xl border border-white/5">
-                <h3 className="text-xl font-bold mb-4">Gestão de Usuários (Admin)</h3>
-                <p className="text-neutral-400 mb-6">Funcionalidade de criação e limites de usuários.</p>
-                {/* Aqui entrará o componente de Admin Users */}
-                <div className="grid gap-4">
-                  <div className="p-4 bg-white/5 rounded-lg border border-white/10 flex justify-between items-center">
-                    <div>
-                      <div className="font-bold">mago@dono.com</div>
-                      <div className="text-xs text-neutral-500 text-purple-400">Administrador • Limite: ∞</div>
-                    </div>
-                    <div className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded">Sistema</div>
-                  </div>
-                  <div className="p-4 bg-white/5 rounded-lg border border-white/10 flex justify-between items-center opacity-60">
-                    <div>
-                      <div className="font-bold">Em breve...</div>
-                      <div className="text-xs text-neutral-500">Módulo de expansão de rede</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <UsersManagementView adminUsername={panelAccount.username} />
             ) : activeView === "admin_flussonics" ? (
               <div className="p-4 bg-black/20 rounded-xl border border-white/5">
                 <h3 className="text-xl font-bold mb-4">Todos os Servidores Flussonic</h3>
