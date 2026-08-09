@@ -112,13 +112,18 @@ export function AccountView({ account, setAccount }: AccountViewProps) {
           </div>
           <div>
             <h2 className="text-xl font-bold">Conta do Painel</h2>
-            <p className="text-sm text-neutral-400">
-              Edite o usuário e a senha do painel quando precisar.
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-sm text-neutral-400">
+                Informações de acesso e nível de privilégio.
+              </p>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${account.role === 'admin' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'}`}>
+                {account.role === 'admin' ? 'Dono / Admin' : 'Usuário Comum'}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-2">
             <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
               Usuário
@@ -141,6 +146,14 @@ export function AccountView({ account, setAccount }: AccountViewProps) {
               className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500 transition-colors"
               placeholder="12345678"
             />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+              Limite de Servidores
+            </label>
+            <div className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-neutral-400">
+              {account.flussonicLimit === 999 ? '∞ (Ilimitado)' : account.flussonicLimit || 5}
+            </div>
           </div>
         </div>
 
