@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
+import type { 
+  FlussonicConnectionProfile, 
+  FlussonicConnectionHealth,
+  FlussonicMirrorSnapshot,
+  FlussonicDownloadJobStatus
+} from "@/lib/m3u/types";
 
 export interface SshResponse {
   success: boolean;
@@ -45,19 +51,56 @@ const panelAccountSchema = z.object({
 export const connectSsh = createServerFn({ method: "POST" })
   .validator(sshConfigSchema)
   .handler(async ({ data }) => {
+    const profile: FlussonicConnectionProfile = {
+      panelUsername: data.panelUsername,
+      serverIp: data.host,
+      sshUser: data.username,
+      sshPort: data.port,
+      sshPassword: data.password || "",
+      apiBaseUrl: data.apiBaseUrl || `http://${data.host}:80`,
+      apiUsername: data.apiUsername,
+      apiPassword: data.apiPassword,
+      apiStreamsPath: data.apiStreamsPath,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      profileId: data.profileId || randomUUID(),
+      profileName: data.profileName || `Servidor ${data.host}`,
+      isActive: true,
+    };
     return {
       success: true,
       message: "Conexão SSH simulada (Ambiente de Desenvolvimento)",
-      health: { state: "connected", sshOk: true, apiOk: true, lastCheckedAt: new Date().toISOString(), message: "Simulado" },
-      profile: { ...data, profileId: data.profileId || randomUUID(), isActive: true },
+      health: { 
+        state: "connected", 
+        sshOk: true, 
+        apiOk: true, 
+        lastCheckedAt: new Date().toISOString(), 
+        message: "Simulado" 
+      },
+      profile,
       streams: []
-    } as any;
+    } as {
+      success: boolean;
+      message: string;
+      health: FlussonicConnectionHealth;
+      profile: FlussonicConnectionProfile;
+      streams: any[];
+    };
   });
 
 export const getPanelAccount = createServerFn({ method: "POST" })
   .validator(panelUsernameSchema)
   .handler(async ({ data }) => {
-    return { success: true, message: "Simulado", account: { username: data.panelUsername, password: "...", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } };
+    return { 
+      success: true, 
+      message: "Simulado", 
+      account: { 
+        username: data.panelUsername, 
+        password: "...", 
+        createdAt: new Date().toISOString(), 
+        updatedAt: new Date().toISOString() 
+      } 
+    };
   });
 
 export const loadPanelAccount = getPanelAccount;
@@ -65,7 +108,16 @@ export const loadPanelAccount = getPanelAccount;
 export const updatePanelAccount = createServerFn({ method: "POST" })
   .validator(panelAccountSchema)
   .handler(async ({ data }) => {
-    return { success: true, message: "Simulado", account: { username: data.username, password: data.password, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } };
+    return { 
+      success: true, 
+      message: "Simulado", 
+      account: { 
+        username: data.username, 
+        password: data.password, 
+        createdAt: new Date().toISOString(), 
+        updatedAt: new Date().toISOString() 
+      } 
+    };
   });
 
 export const savePanelAccountFn = updatePanelAccount;
@@ -73,19 +125,51 @@ export const savePanelAccountFn = updatePanelAccount;
 export const loadFlussonicConnectionProfile = createServerFn({ method: "POST" })
   .validator(panelUsernameSchema)
   .handler(async () => {
-    return { success: true, message: "OK", profile: null, profiles: [] };
+    return { 
+      success: true, 
+      message: "OK", 
+      profile: null as FlussonicConnectionProfile | null, 
+      profiles: [] as FlussonicConnectionProfile[] 
+    } as {
+      success: boolean;
+      message: string;
+      profile: FlussonicConnectionProfile | null;
+      profiles: FlussonicConnectionProfile[];
+    };
   });
 
 export const refreshFlussonicConnectionProfile = createServerFn({ method: "POST" })
   .validator(panelUsernameSchema)
   .handler(async () => {
-    return { success: true, message: "OK", profile: null, health: null, profiles: [] };
+    return { 
+      success: true, 
+      message: "OK", 
+      profile: null as FlussonicConnectionProfile | null, 
+      health: null as FlussonicConnectionHealth | null, 
+      profiles: [] as FlussonicConnectionProfile[] 
+    } as {
+      success: boolean;
+      message: string;
+      profile: FlussonicConnectionProfile | null;
+      health: FlussonicConnectionHealth | null;
+      profiles: FlussonicConnectionProfile[];
+    };
   });
 
 export const activateSavedFlussonicProfile = createServerFn({ method: "POST" })
   .validator(z.any())
   .handler(async () => {
-    return { success: true, message: "OK", profile: null, profiles: [] };
+    return { 
+      success: true, 
+      message: "OK", 
+      profile: null as FlussonicConnectionProfile | null, 
+      profiles: [] as FlussonicConnectionProfile[] 
+    } as {
+      success: boolean;
+      message: string;
+      profile: FlussonicConnectionProfile | null;
+      profiles: FlussonicConnectionProfile[];
+    };
   });
 
 export const deleteSavedFlussonicProfile = createServerFn({ method: "POST" })
@@ -109,7 +193,11 @@ export const fetchFlussonicStreams = createServerFn({ method: "POST" })
 export const fetchFlussonicMirror = createServerFn({ method: "POST" })
   .validator(z.any())
   .handler(async () => {
-    return { success: true, message: "OK", snapshot: null };
+    return { 
+      success: true, 
+      message: "OK", 
+      snapshot: null as FlussonicMirrorSnapshot | null 
+    };
   });
 
 export const startFlussonicDownloadJob = createServerFn({ method: "POST" })
@@ -121,7 +209,11 @@ export const startFlussonicDownloadJob = createServerFn({ method: "POST" })
 export const fetchFlussonicDownloadJobStatus = createServerFn({ method: "POST" })
   .validator(z.any())
   .handler(async () => {
-    return { success: true, message: "Simulado", status: null };
+    return { 
+      success: true, 
+      message: "Simulado", 
+      status: null as FlussonicDownloadJobStatus | null 
+    };
   });
 
 export const createFlussonicCategory = createServerFn({ method: "POST" })
