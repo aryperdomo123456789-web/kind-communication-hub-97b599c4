@@ -69,8 +69,10 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS users (
       username TEXT PRIMARY KEY,
       password TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
+      flussonic_limit INTEGER DEFAULT 5,
       active_flussonic_profile_id TEXT
     )
   `);
@@ -100,8 +102,8 @@ async function initDb() {
   if (!existing) {
     const now = new Date().toISOString();
     await dbRun(
-      "INSERT INTO users (username, password, created_at, updated_at, active_flussonic_profile_id) VALUES (?, ?, ?, ?, ?)",
-      [DEFAULT_PANEL_ACCOUNT.username, DEFAULT_PANEL_ACCOUNT.password, now, now, null]
+      "INSERT INTO users (username, password, role, created_at, updated_at, flussonic_limit) VALUES (?, ?, ?, ?, ?, ?)",
+      [DEFAULT_PANEL_ACCOUNT.username, DEFAULT_PANEL_ACCOUNT.password, 'admin', now, now, 999]
     );
   }
 }
