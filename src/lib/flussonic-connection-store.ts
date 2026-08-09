@@ -35,8 +35,10 @@ export interface SavedFlussonicConnectionProfile {
 export interface PanelUserRecord {
   username: string;
   password: string;
+  role: 'admin' | 'user';
   createdAt: string;
   updatedAt: string;
+  flussonicLimit: number;
   activeFlussonicProfileId?: string | null;
 }
 
