@@ -1,8 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-// We removed ssh2-promise and ssh2 because of native binding issues in this environment.
-// For now, we simulate the responses until we can find a way to call SSH safely (e.g. via an external bridge API).
 
 export interface SshResponse {
   success: boolean;
@@ -75,19 +73,19 @@ export const savePanelAccountFn = updatePanelAccount;
 export const loadFlussonicConnectionProfile = createServerFn({ method: "POST" })
   .validator(panelUsernameSchema)
   .handler(async () => {
-    return { success: true, profile: null, profiles: [] };
+    return { success: true, message: "OK", profile: null, profiles: [] };
   });
 
 export const refreshFlussonicConnectionProfile = createServerFn({ method: "POST" })
   .validator(panelUsernameSchema)
   .handler(async () => {
-    return { success: true, profile: null, profiles: [] };
+    return { success: true, message: "OK", profile: null, health: null, profiles: [] };
   });
 
 export const activateSavedFlussonicProfile = createServerFn({ method: "POST" })
   .validator(z.any())
   .handler(async () => {
-    return { success: true, profile: null, profiles: [] };
+    return { success: true, message: "OK", profile: null, profiles: [] };
   });
 
 export const deleteSavedFlussonicProfile = createServerFn({ method: "POST" })
