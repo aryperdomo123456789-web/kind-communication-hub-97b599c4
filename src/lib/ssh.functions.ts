@@ -45,6 +45,8 @@ const panelUsernameSchema = z.object({ panelUsername: z.string().min(1) });
 const panelAccountSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
+  role: z.enum(['admin', 'user']).optional(),
+  flussonicLimit: z.number().optional(),
 });
 
 // Mocked server functions to fix build
@@ -99,10 +101,49 @@ export const getPanelAccount = createServerFn({ method: "POST" })
       account: { 
         username: data.panelUsername, 
         password: "...", 
+        role: data.panelUsername === "mago@dono.com" ? "admin" : "user",
+        flussonicLimit: data.panelUsername === "mago@dono.com" ? 999 : 5,
         createdAt: new Date().toISOString(), 
         updatedAt: new Date().toISOString() 
       } 
     };
+  });
+
+export const listUsers = createServerFn({ method: "POST" })
+  .validator(z.object({ adminUsername: z.string() }))
+  .handler(async ({ data }) => {
+    // Em produção, verificaríamos se adminUsername é realmente admin
+    return {
+      success: true,
+      users: [
+        { username: "mago@dono.com", role: "admin", flussonicLimit: 999 },
+        { username: "user@teste.com", role: "user", flussonicLimit: 5 }
+      ]
+    };
+  });
+
+export const createUser = createServerFn({ method: "POST" })
+  .validator(panelAccountSchema)
+  .handler(async ({ data }) => {
+    return { success: true, message: `Usuário ${data.username} criado com sucesso!` };
+  });
+
+export const deleteUserFn = createServerFn({ method: "POST" })
+  .validator(z.object({ username: z.string() }))
+  .handler(async ({ data }) => {
+    return { success: true, message: `Usuário ${data.username} removido.` };
+  });
+
+export const listAllFlussonicProfiles = createServerFn({ method: "POST" })
+  .validator(z.object({ adminUsername: z.string() }))
+  .handler(async () => {
+    return { success: true, profiles: [] };
+  });
+
+export const listAllM3ULists = createServerFn({ method: "POST" })
+  .validator(z.object({ adminUsername: z.string() }))
+  .handler(async () => {
+    return { success: true, lists: [] };
   });
 
 export const loadPanelAccount = getPanelAccount;
@@ -116,6 +157,8 @@ export const updatePanelAccount = createServerFn({ method: "POST" })
       account: { 
         username: data.username, 
         password: data.password, 
+        role: data.role || 'user',
+        flussonicLimit: data.flussonicLimit || 5,
         createdAt: new Date().toISOString(), 
         updatedAt: new Date().toISOString() 
       } 
