@@ -374,7 +374,7 @@ export const createFlussonicChannel = createServerFn({ method: "POST" })
     videos: z.array(z.string()) 
   }))
   .handler(async ({ data }) => {
-    const conn = new Client({
+    const conn = new SSH({
       host: data.serverIp,
       port: data.sshPort,
       username: data.sshUser,
