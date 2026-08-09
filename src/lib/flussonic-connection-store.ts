@@ -52,14 +52,14 @@ const SQLITE_PATH = path.join(RUNTIME_DIR, "panel.sqlite");
 
 mkdirSync(RUNTIME_DIR, { recursive: true });
 
-const db = new sqlite3.Database(SQLITE_PATH);
-const dbRun = (sql: string, params: any[] = []) => new Promise<void>((resolve, reject) => {
+export const db = new sqlite3.Database(SQLITE_PATH);
+export const dbRun = (sql: string, params: any[] = []) => new Promise<void>((resolve, reject) => {
   db.run(sql, params, (err) => err ? reject(err) : resolve());
 });
-const dbGet = (sql: string, params: any[] = []) => new Promise<any>((resolve, reject) => {
+export const dbGet = (sql: string, params: any[] = []) => new Promise<any>((resolve, reject) => {
   db.get(sql, params, (err, row) => err ? reject(err) : resolve(row));
 });
-const dbAll = (sql: string, params: any[] = []) => new Promise<any[]>((resolve, reject) => {
+export const dbAll = (sql: string, params: any[] = []) => new Promise<any[]>((resolve, reject) => {
   db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows));
 });
 
