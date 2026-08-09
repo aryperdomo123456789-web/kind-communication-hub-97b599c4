@@ -10,10 +10,18 @@ import {
   PanelAccount,
 } from "@/lib/m3u/types";
 import { useServerFn } from "@tanstack/react-start";
-import { loadPanelAccount, savePanelAccountFn } from "@/lib/ssh.functions";
+import { 
+  loadPanelAccount, 
+  savePanelAccountFn, 
+  listUsers, 
+  createUser, 
+  deleteUserFn,
+  listAllFlussonicProfiles,
+  listAllM3ULists
+} from "@/lib/ssh.functions";
 import { readLocalStorageJSON, writeLocalStorageJSON, writeLocalStorageValue } from "@/lib/storage";
 
-export type ViewType = "movies" | "series" | "live" | "custom" | "settings" | "server" | "account" | "flussonic";
+export type ViewType = "movies" | "series" | "live" | "custom" | "settings" | "server" | "account" | "flussonic" | "admin_users" | "admin_flussonics" | "admin_m3us";
 export type ContentView = "movies" | "series" | "live";
 
 const DEFAULT_M3U_LIST = {
@@ -24,6 +32,8 @@ const DEFAULT_M3U_LIST = {
 const DEFAULT_PANEL_ACCOUNT: PanelAccount = {
   username: "mago@dono.com",
   password: "12345678",
+  role: "admin",
+  flussonicLimit: 999,
 };
 
 export function useM3U() {
@@ -44,6 +54,11 @@ export function useM3U() {
   }));
   const loadPanelAccountFn = useServerFn(loadPanelAccount);
   const savePanelAccountServerFn = useServerFn(savePanelAccountFn);
+  const listUsersServerFn = useServerFn(listUsers);
+  const createUserServerFn = useServerFn(createUser);
+  const deleteUserServerFn = useServerFn(deleteUserFn);
+  const listAllFlussonicsServerFn = useServerFn(listAllFlussonicProfiles);
+  const listAllM3UsServerFn = useServerFn(listAllM3ULists);
   const accountHydratedRef = useRef(false);
   const [activeCategories, setActiveCategories] = useState<Record<ContentView, string>>(() => {
     if (typeof window === "undefined") {
@@ -364,5 +379,14 @@ export function useM3U() {
     isAuthenticated,
     login,
     logout,
+    isAdmin: panelAccount.role === "admin",
+    adminFunctions: {
+      listUsers: () => listUsersServerFn({ data: { adminUsername: panelAccount.username } }),
+      createUser: (u: string, p: string, r: 'admin' | 'user', l: number) => 
+        createUserServerFn({ data: { username: u, password: p, role: r, flussonicLimit: l } }),
+      deleteUser: (u: string) => deleteUserServerFn({ data: { username: u } }),
+      listAllFlussonics: () => listAllFlussonicsServerFn({ data: { adminUsername: panelAccount.username } }),
+      listAllM3Us: () => listAllM3UsServerFn({ data: { adminUsername: panelAccount.username } }),
+    }
   };
 }
